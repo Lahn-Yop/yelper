@@ -4,5 +4,9 @@ channels:
 dependencies:
   - python=3.5
   - jupyter
+  - matplotlib
   - requests>=2.1.0
   - pyyaml
+  - psycopg2
+  - pandas >=0.23
+  - sqlalchemy
