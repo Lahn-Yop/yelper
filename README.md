@@ -1,5 +1,9 @@
 # Yelper
 
+Checkout out this report here: https://lahn-yop.github.io/yelper/initial_analysis.html
+
+## Data
+
 Collecting data using the [Yelp API](https://www.yelp.com/developers/documentation/v3)
 
 Follow [these directions](https://www.yelp.com/developers/documentation/v3/authentication) to create an application.  This is used to generate an API key that will be used to access the Yelp API. 
