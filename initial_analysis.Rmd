@@ -1,0 +1,56 @@
+---
+title: "Coffee Shops in Boston"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r echo=FALSE, message=FALSE}
+library(getPass)
+library(RPostgreSQL)
+library(ggplot2)
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+user <- getPass("PostgreSQL user?")
+password <- getPass("PostgreSQL password?")
+host <- getPass("PostgreSQL host?")
+
+# connect to the database
+con <- dbConnect(dbDriver("PostgreSQL"), 
+                 dbname = "postgres",
+                 host = host, 
+                 port = 5432,
+                 user = user, 
+                 password = password)
+ 
+# read SQL query from file
+query = ("SELECT * FROM yelp_business_clean")
+
+# store query results in a dataframe 
+df <- dbGetQuery(con, query)
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+# inspect data types
+str(df)
+```
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+# inspect the data
+head(df,1)
+```
+
+```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
+title <- paste("The average Yelp rating is", round(mean(df$rating), 1))
+ggplot(data=df, aes(x=df$rating)) + 
+  geom_histogram(aes(y = ..density.., 
+                     fill = ..count..),
+                 breaks=seq(1, 5, by = 0.5), 
+                 binwidth=0.2) + 
+  geom_density() +
+  labs(x="Rating", y="Count") +
+  ggtitle(title) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
