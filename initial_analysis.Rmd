@@ -8,7 +8,7 @@ output:
 ```{r echo=FALSE, message=FALSE}
 library(getPass)
 library(RPostgreSQL)
-library(ggplot2)
+library(tidyverse)
 ```
 
 ```{r echo=FALSE, message=FALSE, results='hide'}
@@ -31,6 +31,7 @@ query = ("SELECT * FROM yelp_business_clean")
 df <- dbGetQuery(con, query)
 ```
 
+
 ```{r echo=FALSE, message=FALSE, results='hide'}
 # inspect data types
 str(df)
@@ -41,6 +42,7 @@ str(df)
 # inspect the data
 head(df,1)
 ```
+
 
 ```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
 title <- paste("The average Yelp rating is", round(mean(df$rating), 1))
@@ -53,4 +55,18 @@ ggplot(data=df, aes(x=df$rating)) +
   labs(x="Rating", y="Count") +
   ggtitle(title) +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+Process df into useable metrics for analysis and select vars of interest.
+
+```{r}
+processed_df <- 
+  df %>% 
+  mutate(coffee_flag = if_else(category_coffee | category_coffeeroasteries, T, F),
+         price_num = str_count(price),
+         trust = scales::rescale(log(rating)*review_count, to = c(0, 100))) %>% 
+  select(name, city, zip_code, 
+         matches("transaction"), coffee_flag, price_num, 
+         review_count, rating, trust) %>% 
+  arrange(-review_count, -rating)
 ```
