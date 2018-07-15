@@ -10,3 +10,4 @@ dependencies:
   - psycopg2
   - pandas >=0.23
   - sqlalchemy
+  - pyfim
