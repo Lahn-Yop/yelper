@@ -5,9 +5,11 @@ output:
     df_print: paged
 ---
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, results='hide'}
 library(getPass)
 library(RPostgreSQL)
+library(ggplot2)
+library(ggmap)
 library(tidyverse)
 ```
 
@@ -23,7 +25,9 @@ con <- dbConnect(dbDriver("PostgreSQL"),
                  port = 5432,
                  user = user, 
                  password = password)
- 
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
 # read SQL query from file
 query = ("SELECT * FROM yelp_business_clean")
 
@@ -57,16 +61,56 @@ ggplot(data=df, aes(x=df$rating)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Process df into useable metrics for analysis and select vars of interest.
+```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
+ggplot(data=df, mapping = aes(x=city, y=rating)) +
+  geom_boxplot(mapping = aes(fill=city)) +
+  theme(legend.position = "none", axis.text.x=element_text(angle=90,hjust=1)) +
+  ggtitle("Ratings by City") + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", hjust = 0.5))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# get the Boston map
+boston <- get_map("Boston,MA", zoom=12)
+```
+
+```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
+ggmap(boston) +
+  geom_point(data=df, aes(x=longitude, y=latitude, color="red", alpha=0.5)) +
+  ggtitle("Coffee Shop Locations") +
+  theme(plot.title = element_text(lineheight=.8, face="bold", hjust = 0.5),
+        legend.position = "none", 
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(), 
+        axis.ticks.x=element_blank(), 
+        axis.title.y=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()
+        )
+
+```
+
+
 
 ```{r}
-processed_df <- 
-  df %>% 
-  mutate(coffee_flag = if_else(category_coffee | category_coffeeroasteries, T, F),
-         price_num = str_count(price),
-         trust = scales::rescale(log(rating)*review_count, to = c(0, 100))) %>% 
-  select(name, city, zip_code, 
-         matches("transaction"), coffee_flag, price_num, 
-         review_count, rating, trust) %>% 
-  arrange(-review_count, -rating)
+################################################################################################
+### WHEN I TRIED TO RUN THIS, IT SAID "Evaluation error: object 'category_coffee' not found." ##
+################################################################################################
+
+# Process df into useable metrics for analysis and select vars of interest.
+
+#processed_df <- 
+#  df %>% 
+#  mutate(coffee_flag = if_else(category_coffee | category_coffeeroasteries, T, F),
+#         price_num = str_count(price),
+#         trust = scales::rescale(log(rating)*review_count, to = c(0, 100))) %>% 
+#  select(name, city, zip_code, 
+#         matches("transaction"), coffee_flag, price_num, 
+#         review_count, rating, trust) %>% 
+#  arrange(-review_count, -rating)
 ```
+
+```{r}
+#head(processed_df)
+```
+
