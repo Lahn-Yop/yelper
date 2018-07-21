@@ -11,6 +11,8 @@ library(RPostgreSQL)
 library(ggplot2)
 library(ggmap)
 library(tidyverse)
+library(arules)
+library(arulesViz)
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -73,7 +75,6 @@ ggmap(boston) +
         axis.text.y=element_blank(), 
         axis.ticks.y=element_blank()
         )
-
 ```
 
 The average Yelp rating of a coffee shop in Boston is `r round(mean(df$rating),1)`
@@ -98,6 +99,18 @@ ggplot(data=df, mapping = aes(x=city, y=rating)) +
   labs(y="Rating") +
   theme(plot.title = element_text(lineheight=.8, face="bold", hjust = 0.5), axis.title.x=element_blank())
 ```
+
+```{r}
+# write transactions to CSV
+write(df$categories, file='transactions.csv', sep=',')
+
+# read in transactions
+trans <- read.transactions(file='transactions.csv')
+
+# plot patterns
+itemFrequencyPlot(trans,topN=20,type="absolute")
+```
+
 
 ```{r echo=FALSE}
 ################################################################################################
