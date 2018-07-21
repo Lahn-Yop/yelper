@@ -5,12 +5,17 @@ output:
     df_print: paged
 ---
 
-```{r echo=FALSE, message=FALSE, results='hide'}
+```{r echo=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(getPass)
 library(RPostgreSQL)
 library(ggplot2)
 library(ggmap)
 library(tidyverse)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# get the Boston map
+boston <- get_map("Boston,MA", zoom=12)
 ```
 
 ```{r echo=FALSE, message=FALSE, results='hide'}
@@ -35,7 +40,6 @@ query = ("SELECT * FROM yelp_business_clean")
 df <- dbGetQuery(con, query)
 ```
 
-
 ```{r echo=FALSE, message=FALSE, results='hide'}
 # inspect data types
 str(df)
@@ -47,32 +51,14 @@ str(df)
 head(df,1)
 ```
 
+This analysis is based on data obtained from Yelp related to coffee shops in Boston. Relevant information regarding out dataset is include below:
 
-```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
-title <- paste("The average Yelp rating is", round(mean(df$rating), 1))
-ggplot(data=df, aes(x=df$rating)) + 
-  geom_histogram(aes(y = ..density.., 
-                     fill = ..count..),
-                 breaks=seq(1, 5, by = 0.5), 
-                 binwidth=0.2) + 
-  geom_density() +
-  labs(x="Rating", y="Count") +
-  ggtitle(title) +
-  theme(plot.title = element_text(hjust = 0.5))
-```
+* We used the [Yelp Business Search API](https://www.yelp.com/developers/documentation/v3/business) to collect our data. For more information on how we collected our data, see [this notebook](https://github.com/Lahn-Yop/yelper/blob/master/1_collect_data.ipynb)
+* Our search terms consists of `categories=coffee` and `location=boston`
+* The dataset is stored in a PostgreSQL database
+* There are `r nrow(df)` unique coffee shops in our dataset
 
-```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
-ggplot(data=df, mapping = aes(x=city, y=rating)) +
-  geom_boxplot(mapping = aes(fill=city)) +
-  theme(legend.position = "none", axis.text.x=element_text(angle=90,hjust=1)) +
-  ggtitle("Ratings by City") + 
-  theme(plot.title = element_text(lineheight=.8, face="bold", hjust = 0.5))
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# get the Boston map
-boston <- get_map("Boston,MA", zoom=12)
-```
+While our search focused on Boston, there are many cities that make up the greater Boston-area. The locations of the coffee shops that are represented in our dataset are seen in the map below.
 
 ```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
 ggmap(boston) +
@@ -90,9 +76,30 @@ ggmap(boston) +
 
 ```
 
+The average Yelp rating of a coffee shop in Boston is `r round(mean(df$rating),1)`
 
+```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
+ggplot(data=df, aes(x=df$rating)) + 
+  geom_histogram(aes(y = ..density.., 
+                     fill = ..count..),
+                 breaks=seq(1, 5, by = 0.5), 
+                 binwidth=0.2) + 
+  geom_density() +
+  labs(x="Rating", y="Count") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
-```{r}
+However, the average coffee shop rating varies greatly from one city to another. 
+
+```{r echo=FALSE, fig.align="center", message = FALSE, warning = FALSE}
+ggplot(data=df, mapping = aes(x=city, y=rating)) +
+  geom_boxplot(mapping = aes(fill=city)) +
+  theme(legend.position = "none", axis.text.x=element_text(angle=90,hjust=1)) +
+  ggtitle("Ratings by City") + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", hjust = 0.5))
+```
+
+```{r echo=FALSE}
 ################################################################################################
 ### WHEN I TRIED TO RUN THIS, IT SAID "Evaluation error: object 'category_coffee' not found." ##
 ################################################################################################
@@ -110,7 +117,7 @@ ggmap(boston) +
 #  arrange(-review_count, -rating)
 ```
 
-```{r}
+```{r echo=FALSE}
 #head(processed_df)
 ```
 
