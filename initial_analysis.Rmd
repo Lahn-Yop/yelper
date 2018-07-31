@@ -13,6 +13,7 @@ library(ggmap)
 library(tidyverse)
 library(arules)
 library(arulesViz)
+library(sf)
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -111,6 +112,17 @@ trans <- read.transactions(file='transactions.csv')
 itemFrequencyPlot(trans,topN=20,type="absolute")
 ```
 
+```{r}
+# load shape file of Boston Neighborhoods
+map <- sf::read_sf('data/Boston_Neighborhoods.shp')
+
+# inspect map data
+map
+
+# plot neighborhoods
+ggplot(map) + 
+  geom_sf()
+```
 
 ```{r echo=FALSE}
 ################################################################################################
